@@ -21,10 +21,9 @@ func GeneratePlaylist() {
 	//We need to take in some artists, but let's just hardcode one for now.
 	var artistNames []string
 	artistNames = append(artistNames, "Rammstein")
-	fmt.Println(artistNames[0])
-	//How do we get from the string Rammstein to the ID?
+
 	var artistIds []string
-	//Just hardcode this for now.
+
 	for _, artistName := range artistNames {
 		artistId := SearchForArtistId(artistName, accessToken)
 		artistIds = append(artistIds, artistId)
@@ -62,16 +61,12 @@ func RefreshSpotifyAuth() string {
 	response, err := http.Post(url, "application/x-www-form-urlencoded", nil)
 	if err != nil {
 		fmt.Println("Oh no, error.")
-	} else {
-		fmt.Println(response)
 	}
 	var responseBody SpotifyRefreshTokenResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
-
-	fmt.Println(responseBody)
 
 	accessToken := responseBody.AccessToken
 	return accessToken
@@ -101,7 +96,7 @@ func SearchForArtistId(artistName string, accessToken string) string {
 	client := http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		//Handle Error
+		fmt.Println("Oh no, error.")
 	}
 
 	req.Header = http.Header{
@@ -149,7 +144,7 @@ func GetTopTrackIds(artistId string, accessToken string) []string {
 	client := http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
-		//Handle Error
+		fmt.Println("Oh no, error.")
 	}
 
 	req.Header = http.Header{
