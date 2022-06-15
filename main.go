@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -22,9 +23,9 @@ func GeneratePlaylist() {
 
 	//We need to take in some artists, but let's just hardcode one for now.
 	var artistNames []string
-	artistNames = append(artistNames, "Combichrist")
-	artistNames = append(artistNames, "Hocico")
-	artistNames = append(artistNames, "257ers")
+	artistNames = append(artistNames, "VNV Nation")
+	artistNames = append(artistNames, "Nova Twins")
+	artistNames = append(artistNames, "Welle: Erdball")
 
 	var artistIds []string
 
@@ -102,7 +103,11 @@ type SpotifyArtistItem struct {
 func SearchForArtistId(artistName string, accessToken string) string {
 
 	q := artistName
-	url := "https://api.spotify.com/v1/search?q=" + q + "&type=artist"
+	qEncoded := &url.URL{Path: q}
+	qEncodedString := qEncoded.String()
+	fmt.Println(qEncodedString)
+
+	url := "https://api.spotify.com/v1/search?q=" + qEncodedString + "&type=artist"
 
 	client := http.Client{}
 	req, err := http.NewRequest("GET", url, nil)
