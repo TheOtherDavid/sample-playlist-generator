@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -21,6 +22,8 @@ func GeneratePlaylist() {
 
 	//We need to take in some artists, but let's just hardcode one for now.
 	var artistNames []string
+	artistNames = append(artistNames, "Combichrist")
+	artistNames = append(artistNames, "Hocico")
 	artistNames = append(artistNames, "Rammstein")
 
 	var artistIds []string
@@ -33,8 +36,10 @@ func GeneratePlaylist() {
 	var playlistName = "Sample Playlist"
 	fmt.Println(playlistName)
 
+	var selectedTrackIds []string
+
 	for _, artistId := range artistIds {
-		selectedTrackIds := GetTopTrackIds(artistId, accessToken)
+		selectedTrackIds = GetTopTrackIds(artistId, accessToken)
 		fmt.Println(selectedTrackIds)
 	}
 
@@ -42,6 +47,9 @@ func GeneratePlaylist() {
 	playlistId := CreateEmptySpotifyPlaylist(playlistName, accessToken)
 	fmt.Println(playlistId)
 	//Add selected songs to playlist
+
+	snapshotId := AddTracksToSpotifyPlaylist(selectedTrackIds, playlistId, accessToken)
+	fmt.Println(snapshotId)
 }
 
 type SpotifyRefreshTokenResponse struct {
@@ -189,7 +197,7 @@ func GetTopTrackIds(artistId string, accessToken string) []string {
 		selectedTrackIds = append(selectedTrackIds, track.Id)
 	}
 
-	return selectedTrackIds
+	return selectedTrackIds[:3]
 }
 
 type SpotifyCreatePlaylistRequest struct {
@@ -239,4 +247,46 @@ func CreateEmptySpotifyPlaylist(playlistName string, accessToken string) string 
 
 	playlistId := responseBody.Id
 	return playlistId
+}
+
+type SpotifyAddTrackToPlaylistResponse struct {
+	SnapshotId string `json:"snapshot_id"`
+}
+
+func AddTracksToSpotifyPlaylist(trackIds []string, playlistId string, accessToken string) string {
+	//convert trackId to full URI
+	spotifyUris := []string{}
+	for _, trackId := range trackIds {
+		uri := "spotify:track:" + trackId
+		spotifyUris = append(spotifyUris, uri)
+	}
+	uriString := strings.Join(spotifyUris[:], ",")
+	fmt.Println(strings.Join(spotifyUris[:], ","))
+
+	url := "https://api.spotify.com/v1/playlists/" + playlistId + "/tracks?uris=" + uriString
+
+	client := http.Client{}
+
+	req, err := http.NewRequest("POST", url, nil)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	req.Header = http.Header{
+		"Authorization": {"Bearer " + accessToken},
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	var responseBody SpotifyAddTrackToPlaylistResponse
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	snapshotId := responseBody.SnapshotId
+	return snapshotId
 }
