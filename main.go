@@ -123,10 +123,74 @@ func SearchForArtistId(artistName string, accessToken string) string {
 	return artistId
 }
 
+type SpotifyTopTracksResponse struct {
+	Tracks []SpotifyTrack `json:"tracks"`
+}
+
+type SpotifyTrack struct {
+	Album       SpotifyAlbum        `json:"album"`
+	Artists     []SpotifyArtistItem `json:"artists"`
+	Id          string              `json:"id"`
+	Name        string              `json:"name"`
+	Popularity  int                 `json:"popularity"`
+	TrackNumber int                 `json:"track_number"`
+}
+
+type SpotifyAlbum struct {
+	Id          string `json:"id"`
+	Name        string `json:"name"`
+	ReleaseDate string `json:"release_date"`
+}
+
 func GetTopTrackIds(artistId string, accessToken string) []string {
 	//Call Top Tracks for artist ID
+	url := "https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US"
 
-	var trackIds []string
-	trackIds = append(trackIds, "0C9p8YMtbdOkcXPPlEmZvY")
-	return trackIds
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		//Handle Error
+	}
+
+	req.Header = http.Header{
+		"Authorization": {"Bearer " + accessToken},
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+	var responseBody SpotifyTopTracksResponse
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+	tracks := responseBody.Tracks
+
+	//Create a map with album ID as the key, and the Track object as the value
+	selectedTracks := make(map[string]SpotifyTrack)
+	for _, track := range tracks {
+		if val, ok := selectedTracks[track.Album.Id]; !ok {
+			//If the album isn't already in the map, add this one!
+			selectedTracks[track.Album.Id] = track
+		} else {
+			//If the album IS in the map, check the probability
+			oldTrack := val
+			oldPopularity := oldTrack.Popularity
+			newPopularity := track.Popularity
+			if newPopularity > oldPopularity {
+				//If the new track is more popular than the old track, replace it
+				selectedTracks[track.Album.Id] = track
+			}
+		}
+	}
+
+	var selectedTrackIds []string
+
+	//Get the values out of the map
+	for _, track := range selectedTracks {
+		selectedTrackIds = append(selectedTrackIds, track.Id)
+	}
+
+	return selectedTrackIds
 }
