@@ -24,7 +24,7 @@ func GeneratePlaylist() {
 	var artistNames []string
 	artistNames = append(artistNames, "Combichrist")
 	artistNames = append(artistNames, "Hocico")
-	artistNames = append(artistNames, "Rammstein")
+	artistNames = append(artistNames, "257ers")
 
 	var artistIds []string
 
@@ -36,11 +36,12 @@ func GeneratePlaylist() {
 	var playlistName = "Sample Playlist"
 	fmt.Println(playlistName)
 
-	var selectedTrackIds []string
+	var playlistTrackIds []string
 
 	for _, artistId := range artistIds {
-		selectedTrackIds = GetTopTrackIds(artistId, accessToken)
+		selectedTrackIds := GetTopTrackIds(artistId, accessToken)
 		fmt.Println(selectedTrackIds)
+		playlistTrackIds = append(playlistTrackIds, selectedTrackIds...)
 	}
 
 	//Create empty playlist
@@ -48,7 +49,7 @@ func GeneratePlaylist() {
 	fmt.Println(playlistId)
 	//Add selected songs to playlist
 
-	snapshotId := AddTracksToSpotifyPlaylist(selectedTrackIds, playlistId, accessToken)
+	snapshotId := AddTracksToSpotifyPlaylist(playlistTrackIds, playlistId, accessToken)
 	fmt.Println(snapshotId)
 }
 
