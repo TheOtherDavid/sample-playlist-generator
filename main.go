@@ -113,12 +113,6 @@ func SearchForArtistId(artistName string, accessToken string) string {
 		fmt.Println("Oh no, error.")
 	}
 
-	/*response, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Oh no, error.")
-	} else {
-		fmt.Println(response)
-	}*/
 	var responseBody SpotifySearchResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
@@ -130,6 +124,8 @@ func SearchForArtistId(artistName string, accessToken string) string {
 }
 
 func GetTopTrackIds(artistId string, accessToken string) []string {
+	//Call Top Tracks for artist ID
+
 	var trackIds []string
 	trackIds = append(trackIds, "0C9p8YMtbdOkcXPPlEmZvY")
 	return trackIds
