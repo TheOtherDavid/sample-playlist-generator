@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -33,12 +34,13 @@ func GeneratePlaylist() {
 	fmt.Println(playlistName)
 
 	for _, artistId := range artistIds {
-		//Call top tracks. Put tracks into a map by album, to get the most popular track per album from the top tracks.
 		selectedTrackIds := GetTopTrackIds(artistId, accessToken)
 		fmt.Println(selectedTrackIds)
-		//Create empty playlist
 	}
 
+	//Create empty playlist
+	playlistId := CreateEmptySpotifyPlaylist(playlistName, accessToken)
+	fmt.Println(playlistId)
 	//Add selected songs to playlist
 }
 
@@ -188,4 +190,53 @@ func GetTopTrackIds(artistId string, accessToken string) []string {
 	}
 
 	return selectedTrackIds
+}
+
+type SpotifyCreatePlaylistRequest struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Public      bool   `json:"public"`
+}
+
+type SpotifyCreatePlaylistResponse struct {
+	Id   string `json:"id"`
+	Name string `json:"name"`
+}
+
+func CreateEmptySpotifyPlaylist(playlistName string, accessToken string) string {
+	userId := os.Getenv("USER_ID")
+	createPlaylistRequest := SpotifyCreatePlaylistRequest{
+		Name:        playlistName,
+		Description: "Generated automatically",
+		//TODO: Change this to true later. Maybe have it env-specific so Dev playlists aren't public?
+		Public: false,
+	}
+	body, _ := json.Marshal(createPlaylistRequest)
+	url := "https://api.spotify.com/v1/users/" + userId + "/playlists"
+
+	client := http.Client{}
+
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	req.Header = http.Header{
+		"Authorization": {"Bearer " + accessToken},
+		"Content-Type":  {"application/json"},
+	}
+
+	response, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	var responseBody SpotifyCreatePlaylistResponse
+	err = json.NewDecoder(response.Body).Decode(&responseBody)
+	if err != nil {
+		fmt.Println("Oh no, error.")
+	}
+
+	playlistId := responseBody.Id
+	return playlistId
 }
