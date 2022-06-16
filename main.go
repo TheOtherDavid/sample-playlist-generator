@@ -11,21 +11,23 @@ import (
 )
 
 func main() {
-	GeneratePlaylist()
+	playlistName := os.Args[1]
+	artistNames := os.Args[2:]
+	GeneratePlaylist(artistNames, playlistName)
 }
 
-func GeneratePlaylist() {
+func GeneratePlaylist(artistNames []string, playlistName string) {
 
 	fmt.Println("Refreshing access token.")
 	accessToken := RefreshSpotifyAuth()
 	fmt.Println("Access token refreshed.")
 	fmt.Println(accessToken)
 
-	//We need to take in some artists, but let's just hardcode one for now.
-	var artistNames []string
-	artistNames = append(artistNames, "VNV Nation")
-	artistNames = append(artistNames, "Nova Twins")
-	artistNames = append(artistNames, "Welle: Erdball")
+	// //We need to take in some artists, but let's just hardcode one for now.
+	// var artistNames []string
+	// artistNames = append(artistNames, "VNV Nation")
+	// artistNames = append(artistNames, "Nova Twins")
+	// artistNames = append(artistNames, "Welle: Erdball")
 
 	var artistIds []string
 
@@ -33,9 +35,6 @@ func GeneratePlaylist() {
 		artistId := SearchForArtistId(artistName, accessToken)
 		artistIds = append(artistIds, artistId)
 	}
-
-	var playlistName = "Sample Playlist"
-	fmt.Println(playlistName)
 
 	var playlistTrackIds []string
 
