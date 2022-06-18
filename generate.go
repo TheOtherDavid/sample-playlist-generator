@@ -23,12 +23,6 @@ func GeneratePlaylist(artistNames []string, playlistName string) {
 	fmt.Println("Access token refreshed.")
 	fmt.Println(accessToken)
 
-	// //We need to take in some artists, but let's just hardcode one for now.
-	// var artistNames []string
-	// artistNames = append(artistNames, "VNV Nation")
-	// artistNames = append(artistNames, "Nova Twins")
-	// artistNames = append(artistNames, "Welle: Erdball")
-
 	var artistIds []string
 
 	for _, artistName := range artistNames {
