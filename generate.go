@@ -196,7 +196,11 @@ func GetTopTrackIds(artistId string, accessToken string) []string {
 		selectedTrackIds = append(selectedTrackIds, track.Id)
 	}
 
-	return selectedTrackIds[:3]
+	if len(selectedTrackIds) < 3 {
+		return selectedTrackIds
+	} else {
+		return selectedTrackIds[:3]
+	}
 }
 
 type SpotifyCreatePlaylistRequest struct {
