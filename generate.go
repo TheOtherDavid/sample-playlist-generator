@@ -23,17 +23,17 @@ func GeneratePlaylist(artistNames []string, playlistName string) {
 	fmt.Println("Access token refreshed.")
 	fmt.Println(accessToken)
 
-	var artistIds []string
+	var artists []SpotifyArtistItem
 
 	for _, artistName := range artistNames {
-		artistId := SearchForArtistId(artistName, accessToken)
-		artistIds = append(artistIds, artistId)
+		artist := SearchForArtist(artistName, accessToken)
+		artists = append(artists, artist)
 	}
 
 	var playlistTrackIds []string
 
-	for _, artistId := range artistIds {
-		selectedTrackIds := GetTopTrackIds(artistId, accessToken)
+	for _, artist := range artists {
+		selectedTrackIds := GetTopTrackIds(artist.Id, accessToken)
 		fmt.Println(selectedTrackIds)
 		playlistTrackIds = append(playlistTrackIds, selectedTrackIds...)
 	}
@@ -93,7 +93,7 @@ type SpotifyArtistItem struct {
 	Type       string   `json:"type"`
 }
 
-func SearchForArtistId(artistName string, accessToken string) string {
+func SearchForArtist(artistName string, accessToken string) SpotifyArtistItem {
 
 	q := artistName
 	qEncoded := &url.URL{Path: q}
@@ -122,9 +122,9 @@ func SearchForArtistId(artistName string, accessToken string) string {
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
-	//Assume the first result is correct and take that ID.
-	artistId := responseBody.Artists.Items[0].Id
-	return artistId
+	//Assume the first result is correct and take that item.
+	artist := responseBody.Artists.Items[0]
+	return artist
 }
 
 type SpotifyTopTracksResponse struct {
