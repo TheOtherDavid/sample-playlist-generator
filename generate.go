@@ -10,12 +10,6 @@ import (
 	"strings"
 )
 
-func main() {
-	playlistName := os.Args[1]
-	artistNames := os.Args[2:]
-	GeneratePlaylist(artistNames, playlistName)
-}
-
 func GeneratePlaylist(artistNames []string, playlistName string) {
 
 	fmt.Println("Refreshing access token.")
