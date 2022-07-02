@@ -24,7 +24,7 @@ func main() {
 
 func generatePlaylist() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var body generatePlaylistPayload
+		var body generatePlaylistRequest
 
 		decoder := json.NewDecoder(r.Body)
 		if err := decoder.Decode(&body); err != nil {
@@ -35,10 +35,33 @@ func generatePlaylist() func(w http.ResponseWriter, r *http.Request) {
 		playlistName := body.PlaylistName
 		artistNames := body.ArtistNames
 		generate.GeneratePlaylist(artistNames, playlistName)
+		response := generatePlaylistResponse{
+			Success: true,
+		}
+		respondWithJSON(w, 200, response)
 	}
 }
 
-type generatePlaylistPayload struct {
+type generatePlaylistRequest struct {
 	PlaylistName string   `json:"playlistName"`
 	ArtistNames  []string `json:"artistNames"`
+}
+
+type generatePlaylistResponse struct {
+	Success bool `json:"success"`
+}
+
+func respondWithError(w http.ResponseWriter, code int, message string) {
+	respondWithJSON(w, code, map[string]string{"error": message})
+}
+
+func respondWithJSON(w http.ResponseWriter, code int, payload interface{}) {
+	response, err := json.Marshal(payload)
+	if err != nil {
+		println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	w.Write(response)
 }
