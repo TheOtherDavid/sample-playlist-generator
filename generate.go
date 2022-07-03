@@ -13,7 +13,10 @@ import (
 func GeneratePlaylist(artistNames []string, playlistName string) {
 
 	fmt.Println("Refreshing access token.")
-	accessToken := RefreshSpotifyAuth()
+	accessToken, err := RefreshSpotifyAuth()
+	if err != nil {
+		panic(0)
+	}
 	fmt.Println("Access token refreshed.")
 	fmt.Println(accessToken)
 
@@ -48,7 +51,7 @@ type SpotifyRefreshTokenResponse struct {
 	Scope       string `json:"scope"`
 }
 
-func RefreshSpotifyAuth() string {
+func RefreshSpotifyAuth() (string, error) {
 	clientId := os.Getenv("SPOTIFY_ID")
 	clientSecret := os.Getenv("SPOTIFY_SECRET")
 	refreshToken := os.Getenv("REFRESH_TOKEN")
@@ -65,10 +68,11 @@ func RefreshSpotifyAuth() string {
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
 		fmt.Println("Oh no, error.")
+		return "", err
 	}
 
 	accessToken := responseBody.AccessToken
-	return accessToken
+	return accessToken, nil
 }
 
 type SpotifySearchResponse struct {
