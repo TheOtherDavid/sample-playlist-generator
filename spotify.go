@@ -30,6 +30,8 @@ func RefreshSpotifyAuth() (string, error) {
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
+	defer response.Body.Close()
+
 	var responseBody SpotifyRefreshTokenResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
@@ -80,6 +82,7 @@ func SearchForArtist(artistName string, accessToken string) SpotifyArtistItem {
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
+	defer response.Body.Close()
 
 	var responseBody SpotifySearchResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
@@ -128,6 +131,8 @@ func GetTopTrackIds(artistId string, accessToken string) []string {
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
+	defer response.Body.Close()
+
 	var responseBody SpotifyTopTracksResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
 	if err != nil {
@@ -205,6 +210,7 @@ func CreateEmptySpotifyPlaylist(playlistName string, accessToken string) string 
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
+	defer response.Body.Close()
 
 	var responseBody SpotifyCreatePlaylistResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
@@ -247,6 +253,7 @@ func AddTracksToSpotifyPlaylist(trackIds []string, playlistId string, accessToke
 	if err != nil {
 		fmt.Println("Oh no, error.")
 	}
+	defer response.Body.Close()
 
 	var responseBody SpotifyAddTrackToPlaylistResponse
 	err = json.NewDecoder(response.Body).Decode(&responseBody)
